@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"strings"
+	"sort"
 )
 
 type Session struct {
@@ -37,4 +39,16 @@ func (s *Session) Video(preferHd bool) (url string, fileName string, ok bool) {
 	} else {
 		return "", "", false
 	}
+}
+
+func (s *Session) String() string {
+	downloadList := make([]string, 0)
+
+	for download, _ := range s.downloads {
+		downloadList = append(downloadList, strings.ToUpper(download))
+	}
+
+	sort.Strings(downloadList)
+
+	return fmt.Sprintf("%s - %s (%s) \n", s.Number, s.Title, strings.Join(downloadList, ", "))
 }
