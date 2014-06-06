@@ -25,11 +25,8 @@ Options:
 
 ## Installation
 
-```
-go get github.com/sirlantis/wwdcdl
-```
-
-or visit the [Releases page](https://github.com/sirlantis/wwdcdl/releases) and download it depending on your OS.
+- Get it from the [Releases page](https://github.com/sirlantis/wwdcdl/releases) (OS X, Linux)
+- **or** run `go get github.com/sirlantis/wwdcdl` if you have `go` installed.
 
 ## License
 
