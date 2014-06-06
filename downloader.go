@@ -63,6 +63,10 @@ func download(source string, destination string) (err error) {
 		return errors.New(fmt.Sprintf("Server responded with unexpected content-type '%s'", contentType))
 	}
 
+	if dryRun {
+		return errors.New(fmt.Sprintf("[DRY RUN]"))
+	}
+
 	formatter := docker.NewStreamFormatter(false)
 	reader := docker.ProgressReader(resp.Body, int(resp.ContentLength), os.Stdout, formatter, true, source, "Downloading")
 
@@ -84,7 +88,7 @@ func FileExists(path string) bool {
 }
 
 func assertDirectory(path string) {
-	if len(path) > 0 { // could be empty
+	if !dryRun && len(path) > 0 { // could be empty
 		if err := os.MkdirAll(path, 0755); err != nil {
 			fmt.Printf("Failed to create output directory: %s\nReason: %s\n", path, err)
 			os.Exit(1) // no use to try other files
@@ -93,10 +97,6 @@ func assertDirectory(path string) {
 }
 
 func DownloadFile(source string, fileName string) error {
-	if dryRun {
-		fmt.Printf("[DRY RUN] %s\n", fileName)
-		return nil
-	}
 
 	assertDirectory(output)
 	destination := path.Join(output, fileName)
