@@ -1,6 +1,6 @@
 # wwdcdl
 
-Small program to download WWDC videos (written in Go)
+Small program to download WWDC videos and slides (written in Go)
 
 ```
 Usage:
