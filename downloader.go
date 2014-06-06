@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"io"
 	docker "github.com/dotcloud/docker/utils"
+	"errors"
+	"strings"
 )
 
 var preferHd bool
@@ -43,6 +45,23 @@ func download(source string, destination string) (err error) {
 	}
 
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return errors.New(fmt.Sprintf("Server responded with unexpected status-code %d", resp.StatusCode))
+	}
+
+	if resp.Request.URL != nil {
+		index := strings.Index(resp.Request.URL.Host, "daw.apple.com")
+
+		// we got redirected to login
+		if index >= 0 {
+			return errors.New("Server requested authorization.")
+		}
+	}
+
+	if contentType := resp.Header.Get("Content-Type"); contentType == "text/html" {
+		return errors.New(fmt.Sprintf("Server responded with unexpected content-type '%s'", contentType))
+	}
 
 	formatter := docker.NewStreamFormatter(false)
 	reader := docker.ProgressReader(resp.Body, int(resp.ContentLength), os.Stdout, formatter, true, source, "Downloading")
