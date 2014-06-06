@@ -5,18 +5,20 @@ Small program to download WWDC videos and slides (written in Go)
 ```
 Usage:
 
-  wwdcdl [options] event
+  ./wwdcdl [options] event
 
 Events:
 
+  tt2013
   wwdc2013
   wwdc2014
 
 Options:
 
   -hd=false: Prefer videos in HD quality
+  -list=false: Only list sessions
   -n=false: Dry run (don't download anything)
-  -output="/Users/marcel/Documents/WWDC": Location to store output
+  -output="~/Documents/WWDC": Location to store output
   -slides=true: Download slides/PDFs
   -videos=true: Download videos
 ```
