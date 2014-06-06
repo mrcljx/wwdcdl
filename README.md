@@ -29,7 +29,7 @@ go get github.com/sirlantis/wwdcdl
 
 or visit the [Releases page](https://github.com/sirlantis/wwdcdl/releases) and download it depending on your OS.
 
-##
+## License
 
 This project is licensed under the GNU General Public License v2.
 
