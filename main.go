@@ -8,6 +8,7 @@ import (
 var videos bool
 var slides bool
 var list bool
+var authenticator *Authenticator
 
 func init() {
 	flag.BoolVar(&videos, "videos", true, "Download videos")
@@ -19,6 +20,7 @@ func init() {
 func main() {
 	flag.Parse()
 
+	authenticator = NewAuthenticator()
 	sessions := FindSessions()
 
 	fmt.Printf("Found %d sessions.\n", len(sessions))

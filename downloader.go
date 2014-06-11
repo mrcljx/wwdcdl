@@ -1,22 +1,23 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"flag"
-	"path"
-	"runtime"
+	"fmt"
+	docker "github.com/dotcloud/docker/utils"
+	"io"
+	"net/http"
 	"os"
 	osUser "os/user"
-	"net/http"
-	"io"
-	docker "github.com/dotcloud/docker/utils"
-	"errors"
+	"path"
+	"runtime"
 	"strings"
 )
 
 var preferHd bool
 var dryRun bool
 var output string
+var client *http.Client
 
 func init() {
 	user, err := osUser.Current()
@@ -38,7 +39,17 @@ func init() {
 }
 
 func download(source string, destination string) (err error) {
-	resp, err := http.Get(source)
+	req, err := http.NewRequest("GET", source, nil)
+
+	if err != nil {
+		return
+	}
+
+	if err != nil {
+		return
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
 		return
@@ -47,15 +58,28 @@ func download(source string, destination string) (err error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
+		// fmt.Printf("Body:\n")
+		// io.Copy(os.Stderr, resp.Body)
 		return errors.New(fmt.Sprintf("Server responded with unexpected status-code %d", resp.StatusCode))
 	}
 
 	if resp.Request.URL != nil {
-		index := strings.Index(resp.Request.URL.Host, "daw.apple.com")
+		redirectedToLogin := strings.Index(resp.Request.URL.Host, "daw.apple.com") >= 0
 
-		// we got redirected to login
-		if index >= 0 {
-			return errors.New("Server requested authorization.")
+		if redirectedToLogin {
+			if authenticator.IsAuthenticated() {
+				return errors.New("Server requested authentication but we authenticated already.")
+			}
+
+			fmt.Printf("Server requested authentication. Starting a browser...\n")
+			err = authenticator.Authenticate()
+
+			if err != nil {
+				return
+			}
+
+			// retry download
+			return download(source, destination)
 		}
 	}
 
