@@ -61,7 +61,7 @@ func (a *Authenticator) Authenticate() (err error) {
 }
 
 func (a *Authenticator) loadCookiesViaCasper() (err error) {
-	casper, err := exec.LookPath("casperjs2")
+	casper, err := exec.LookPath("casperjs")
 
 	if err != nil {
 		fmt.Printf("To authenticate against Apple `wwdcdl` requires the headless browser CasperJS (http://casperjs.org).\n")
