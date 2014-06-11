@@ -52,7 +52,7 @@ casper.waitFor ->
     index = system.stdin.readLine()
     selectedOption = options[Number(index) - 1]
   
-  console.log "Selecting team: #{selectedOption.text}", "info"
+  casper.log "Selecting team: #{selectedOption.text}", "info"
 
   @fill "form#saveTeamSelection", { memberDisplayId: selectedOption.id }, true
 , ->
