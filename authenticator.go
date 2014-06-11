@@ -1,32 +1,34 @@
 package main
 
 import (
-	"net/http"
 	"encoding/json"
+	"errors"
+	"flag"
+	"fmt"
+	"github.com/howeyc/gopass"
 	"io"
 	"io/ioutil"
-	"fmt"
-	"net/url"
+	"net/http"
 	"net/http/cookiejar"
-	"os/exec"
+	"net/url"
 	"os"
-	"time"
-	"flag"
-	"github.com/howeyc/gopass"
+	"os/exec"
 	"path"
+	"runtime"
+	"time"
 )
 
 var username, password, teamId string
 var askPassword bool
 
 func init() {
-  flag.StringVar(&username, "username", "", "AppleID username")
-  flag.StringVar(&teamId, "team", "", "Apple Developer Team ID")
-  flag.BoolVar(&askPassword, "password", false, "Ask for AppleID password")
+	flag.StringVar(&username, "username", "", "AppleID username (requires CasperJS)")
+	flag.StringVar(&teamId, "team", "", "Apple Developer Team ID (requires CasperJS)")
+	flag.BoolVar(&askPassword, "password", false, "Ask for AppleID password (requires CasperJS)")
 }
 
 type Authenticator struct {
-	cookies []*http.Cookie
+	cookies       []*http.Cookie
 	authenticated bool
 }
 
@@ -38,31 +40,38 @@ func NewAuthenticator() *Authenticator {
 	}
 
 	return &Authenticator{
-		cookies: make([]*http.Cookie, 0),
+		cookies:       make([]*http.Cookie, 0),
 		authenticated: false,
 	}
 }
 
 func (a *Authenticator) IsAuthenticated() bool {
-	return a.authenticated 
+	return a.authenticated
 }
 
 func (a *Authenticator) Authenticate() (err error) {
 	if a.authenticated {
 		return
 	}
-	
+
 	a.authenticated = true
-	
+
 	err = a.loadCookiesViaCasper()
 	return
 }
 
 func (a *Authenticator) loadCookiesViaCasper() (err error) {
-	casper, err := exec.LookPath("casperjs")
-	
+	casper, err := exec.LookPath("casperjs2")
+
 	if err != nil {
-		return
+		fmt.Printf("To authenticate against Apple `wwdcdl` requires the headless browser CasperJS (http://casperjs.org).\n")
+
+		if runtime.GOOS == "darwin" {
+			fmt.Printf("If you have Homebrew installed, just use `brew install casperjs`.\n")
+		}
+
+		os.Exit(1)
+		return errors.New("CasperJS not installed.")
 	}
 
 	dir, err := ioutil.TempDir("", "wwdcdl")
@@ -76,9 +85,9 @@ func (a *Authenticator) loadCookiesViaCasper() (err error) {
 	scriptFileName := path.Join(dir, "login.coffee")
 	asset, _ := Asset("data/login.coffee")
 	ioutil.WriteFile(scriptFileName, asset, 0600)
-	
+
 	cmd := exec.Command(casper, scriptFileName, fileName, username, password, teamId)
-	
+
 	stdout, _ := cmd.StdoutPipe()
 	go io.Copy(os.Stdout, stdout)
 
@@ -87,15 +96,15 @@ func (a *Authenticator) loadCookiesViaCasper() (err error) {
 
 	stdin, err := cmd.StdinPipe()
 	go io.Copy(stdin, os.Stdin)
-	
+
 	err = cmd.Run()
-	
+
 	if err != nil {
 		return
 	}
 
 	a.loadCookiesFromFile(fileName)
-	
+
 	return
 }
 
@@ -107,27 +116,27 @@ func (a *Authenticator) loadCookiesFromFile(fileName string) (err error) {
 
 func (a *Authenticator) loadCookies(data []byte) {
 	var rawCookies []map[string]interface{}
-	
+
 	json.Unmarshal(data, &rawCookies)
-	
+
 	for _, rawCookie := range rawCookies {
 		cookie := &http.Cookie{
-			Name: rawCookie["name"].(string),
-			Value: rawCookie["value"].(string),
-			Path: rawCookie["path"].(string),
-			Domain: rawCookie["domain"].(string),
-			Expires: time.Unix(int64(rawCookie["expiry"].(float64)), 0),
+			Name:       rawCookie["name"].(string),
+			Value:      rawCookie["value"].(string),
+			Path:       rawCookie["path"].(string),
+			Domain:     rawCookie["domain"].(string),
+			Expires:    time.Unix(int64(rawCookie["expiry"].(float64)), 0),
 			RawExpires: rawCookie["expires"].(string),
-			MaxAge: 0,
-			Secure: rawCookie["secure"].(bool),
-			HttpOnly: rawCookie["httponly"].(bool),
+			MaxAge:     0,
+			Secure:     rawCookie["secure"].(bool),
+			HttpOnly:   rawCookie["httponly"].(bool),
 		}
-		
-		a.cookies = append(a.cookies, cookie) 
+
+		a.cookies = append(a.cookies, cookie)
 	}
 
 	fmt.Printf("Imported %d cookies.\n", len(a.cookies))
-	
+
 	cookieUrl, _ := url.Parse("https://apple.com")
 	http.DefaultClient.Jar, _ = cookiejar.New(nil)
 	http.DefaultClient.Jar.SetCookies(cookieUrl, a.cookies)

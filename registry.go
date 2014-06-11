@@ -22,6 +22,8 @@ func init() {
 		}
 		fmt.Fprintf(os.Stderr, "\nOptions:\n\n")
 		flag.PrintDefaults()
+		fmt.Fprintf(os.Stderr, "\nNotes:\n\n")
+		fmt.Fprintf(os.Stderr, "CasperJS (http://casperjs.org/) is required for authentication.\n")
 	}
 }
 
