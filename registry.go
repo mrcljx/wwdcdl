@@ -2,10 +2,10 @@ package main
 
 import (
 	"errors"
-	"fmt"
+	"flag"
+	"log"
 	"os"
 	"sort"
-	"flag"
 )
 
 type SessionResolver func(event *Event) []*Session
@@ -32,16 +32,16 @@ func init() {
 	events = make(map[string]*Event)
 
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage:\n\n  %s [options] event\n", os.Args[0])
-		fmt.Fprintf(os.Stderr, "\nEvents:\n\n")
-		fmt.Fprintf(os.Stderr, "  all\n")
+		log.Printf("Usage:\n\n  %s [options] event\n", os.Args[0])
+		log.Println("\nEvents:\n")
+		log.Println("  all")
 		for _, eventName := range EventNames() {
-			fmt.Fprintf(os.Stderr, "  %s (%s)\n", eventName, events[eventName].Name)
+			log.Printf("  %s (%s)\n", eventName, events[eventName].Name)
 		}
-		fmt.Fprintf(os.Stderr, "\nOptions:\n\n")
+		log.Println("\nOptions:\n")
 		flag.PrintDefaults()
-		fmt.Fprintf(os.Stderr, "\nNotes:\n\n")
-		fmt.Fprintf(os.Stderr, "CasperJS (http://casperjs.org/) is required for authentication.\n")
+		log.Println("\nNotes:\n")
+		log.Println("CasperJS (http://casperjs.org/) is required for authentication.")
 	}
 }
 
@@ -71,7 +71,7 @@ func FindSessions() []*Session {
 	event, ok := events[eventId]
 
 	if !ok {
-		fmt.Fprintf(os.Stderr, "Unknown event '%s'.\n\n", eventId)
+		log.Printf("Unknown event '%s'.\n\n", eventId)
 		flag.Usage()
 		os.Exit(1)
 	}

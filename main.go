@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"flag"
+	"log"
 )
 
 var videos bool
@@ -11,6 +11,8 @@ var list bool
 var authenticator *Authenticator
 
 func init() {
+	log.SetFlags(0)
+	
 	flag.BoolVar(&videos, "videos", true, "Download videos")
 	flag.BoolVar(&slides, "slides", true, "Download slides/PDFs")
 	flag.BoolVar(&list, "list", false, "Only list sessions")
@@ -23,11 +25,11 @@ func main() {
 	authenticator = NewAuthenticator()
 	sessions := FindSessions()
 
-	fmt.Printf("Found %d sessions.\n", len(sessions))
+	log.Printf("Found %d sessions.\n", len(sessions))
 
 	for _, session := range sessions {
 		if (list) {
-			fmt.Printf("%s", session)
+			log.Println(session.String())
 			continue
 		}
 

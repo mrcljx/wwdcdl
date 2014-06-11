@@ -2,12 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"flag"
-	"fmt"
 	"github.com/howeyc/gopass"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -34,7 +33,7 @@ type Authenticator struct {
 
 func NewAuthenticator() *Authenticator {
 	if askPassword {
-		fmt.Printf("Password: ")
+		log.Print("Password: ")
 		password = string(gopass.GetPasswd())
 		askPassword = false
 	}
@@ -64,14 +63,13 @@ func (a *Authenticator) loadCookiesViaCasper() (err error) {
 	casper, err := exec.LookPath("casperjs")
 
 	if err != nil {
-		fmt.Printf("To authenticate against Apple `wwdcdl` requires the headless browser CasperJS (http://casperjs.org).\n")
+		log.Println("To authenticate against Apple `wwdcdl` requires the headless browser CasperJS (http://casperjs.org).")
 
 		if runtime.GOOS == "darwin" {
-			fmt.Printf("If you have Homebrew installed, just use `brew install casperjs`.\n")
+			log.Println("If you have Homebrew installed, just use `brew install casperjs`.\n")
 		}
 
-		os.Exit(1)
-		return errors.New("CasperJS not installed.")
+		log.Fatalln("CasperJS not installed.")
 	}
 
 	dir, err := ioutil.TempDir("", "wwdcdl")
@@ -135,7 +133,7 @@ func (a *Authenticator) loadCookies(data []byte) {
 		a.cookies = append(a.cookies, cookie)
 	}
 
-	fmt.Printf("Imported %d cookies.\n", len(a.cookies))
+	log.Printf("Imported %d cookies.\n", len(a.cookies))
 
 	cookieUrl, _ := url.Parse("https://apple.com")
 	http.DefaultClient.Jar, _ = cookiejar.New(nil)

@@ -52,5 +52,5 @@ func (s *Session) String() string {
 
 	sort.Strings(downloadList)
 
-	return fmt.Sprintf("%s - %s (%s) \n", s.Number, s.Title, strings.Join(downloadList, ", "))
+	return fmt.Sprintf("[%s] %s - %s (%s)", s.Event.Id, s.Number, s.Title, strings.Join(downloadList, ", "))
 }

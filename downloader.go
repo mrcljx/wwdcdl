@@ -6,6 +6,7 @@ import (
 	"fmt"
 	docker "github.com/dotcloud/docker/utils"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	osUser "os/user"
@@ -73,7 +74,7 @@ func download(source string, destination string) (err error) {
 				return errors.New("Server requested authentication but we authenticated already.")
 			}
 
-			fmt.Printf("Server requested authentication. Starting a browser...\n")
+			log.Println("Server requested authentication. Starting a browser...")
 			err = authenticator.Authenticate()
 
 			if err != nil {
@@ -116,7 +117,7 @@ func FileExists(path string) bool {
 func assertDirectory(path string) {
 	if !dryRun && len(path) > 0 { // could be empty
 		if err := os.MkdirAll(path, 0755); err != nil {
-			fmt.Printf("Failed to create output directory: %s\nReason: %s\n", path, err)
+			log.Printf("Failed to create output directory: %s\nReason: %s\n", path, err)
 			os.Exit(1) // no use to try other files
 		}
 	}
@@ -131,23 +132,23 @@ func DownloadFile(session *Session, source string, fileName string) error {
 
 	assertDirectory(desinationDirectory)
 	destination := path.Join(desinationDirectory, fileName)
-	fmt.Printf("\n%s\n", destination)
+	log.Printf("\n%s\n", destination)
 
 	if FileExists(destination) {
-		fmt.Printf("Already downloaded. Skipping...\n")
+		log.Printf("Already downloaded. Skipping...\n")
 		return nil
 	}
 
 	temporary := destination + ".wddownload"
 
 	if err := download(source, temporary); err != nil {
-		fmt.Printf("Failed to download: %s\n", err)
+		log.Printf("Failed to download: %s\n", err)
 		os.Remove(temporary)
 		return err
 	}
 
 	if err := os.Rename(temporary, destination); err != nil {
-		fmt.Printf("Failed to move temporary file to final location: %s\n", err)
+		log.Printf("Failed to move temporary file to final location: %s\n", err)
 		os.Remove(temporary)
 		return err
 	}
