@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -9,16 +10,32 @@ import (
 
 type SessionResolver func() []*Session
 
-var events map[string]SessionResolver
+type Event struct {
+	Id string
+	Name string
+	Resolver SessionResolver
+}
+
+var events map[string]*Event
+
+func RegisterEvent(event *Event) (err error) {
+	if event.Resolver == nil {
+		err = errors.New("Event doesn't have a Resolver")
+	} else {
+		events[event.Id] = event
+	}
+
+	return
+}
 
 func init() {
-	events = make(map[string]SessionResolver)
+	events = make(map[string]*Event)
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage:\n\n  %s [options] event\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "\nEvents:\n\n")
 		for _, eventName := range EventNames() {
-			fmt.Fprintf(os.Stderr, "  %s\n", eventName)
+			fmt.Fprintf(os.Stderr, "  %s (%s)\n", eventName, events[eventName].Name)
 		}
 		fmt.Fprintf(os.Stderr, "\nOptions:\n\n")
 		flag.PrintDefaults()
@@ -39,20 +56,20 @@ func EventNames() (names []string) {
 }
 
 func FindSessions() []*Session {
-	event := flag.Arg(0)
+	eventId := flag.Arg(0)
 
-	if len(event) == 0 {
+	if len(eventId) == 0 {
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	resolver, ok := events[event]
+	event, ok := events[eventId]
 
 	if !ok {
-		fmt.Fprintf(os.Stderr, "Unknown event '%s'.\n\n", event)
+		fmt.Fprintf(os.Stderr, "Unknown event '%s'.\n\n", eventId)
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	return resolver()
+	return event.Resolver()
 }

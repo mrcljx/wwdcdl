@@ -1,7 +1,11 @@
 package main
 
 func init() {
-	events["wwdc2012"] = func() []*Session {
-		return getSessionsFromUrl("https://developer.apple.com/videos/wwdc/2012/")
-	}
+	RegisterEvent(&Event{
+		Id: "wwdc2012",
+		Name: "WWDC 2012",
+		Resolver: func() []*Session {
+			return getSessionsFromUrl("https://developer.apple.com/videos/wwdc/2012/")
+		},
+	})
 }

@@ -5,7 +5,11 @@ import (
 )
 
 func init() {
-	events["wwdc2014"] = GetWWDC2014Sessions
+	RegisterEvent(&Event{
+		Id: "wwdc2014",
+		Name: "WWDC 2014",
+		Resolver: GetWWDC2014Sessions,
+	})
 }
 
 func GetWWDC2014Sessions() []*Session {
