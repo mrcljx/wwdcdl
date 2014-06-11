@@ -9,6 +9,7 @@ Usage:
 
 Events:
 
+  all
   tt2013 (Tech-Talks 2013)
   wwdc2012 (WWDC 2012)
   wwdc2013 (WWDC 2013)

@@ -34,6 +34,7 @@ func init() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage:\n\n  %s [options] event\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "\nEvents:\n\n")
+		fmt.Fprintf(os.Stderr, "  all\n")
 		for _, eventName := range EventNames() {
 			fmt.Fprintf(os.Stderr, "  %s (%s)\n", eventName, events[eventName].Name)
 		}
@@ -63,6 +64,10 @@ func FindSessions() []*Session {
 		os.Exit(1)
 	}
 
+	if eventId == "all" {
+		return AllSessions()
+	}
+
 	event, ok := events[eventId]
 
 	if !ok {
@@ -72,4 +77,14 @@ func FindSessions() []*Session {
 	}
 
 	return event.Resolver(event)
+}
+
+func AllSessions() []*Session {
+	sessions := make([]*Session, 0)
+
+	for _, event := range events {
+		sessions = append(sessions, event.Resolver(event)...)
+	}
+
+	return sessions
 }
