@@ -59,7 +59,7 @@ func download(source string, destination string) (err error) {
 		}
 	}
 
-	if contentType := resp.Header.Get("Content-Type"); contentType == "text/html" {
+	if contentType := resp.Header.Get("Content-Type"); strings.Index(contentType, "text/") == 0 {
 		return errors.New(fmt.Sprintf("Server responded with unexpected content-type '%s'", contentType))
 	}
 
