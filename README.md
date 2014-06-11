@@ -9,17 +9,18 @@ Usage:
 
 Events:
 
-  tt2013
-  wwdc2012
-  wwdc2013
-  wwdc2014
+  tt2013 (Tech-Talks 2013)
+  wwdc2012 (WWDC 2012)
+  wwdc2013 (WWDC 2013)
+  wwdc2014 (WWDC 2014)
 
 Options:
 
+  -folders=true: Create a separate folder for each event
   -hd=false: Prefer videos in HD quality
   -list=false: Only list sessions
   -n=false: Dry run (don't download anything)
-  -output="/Users/marcel/Documents/WWDC": Location to store output
+  -output="/Users/marcel/Documents/Apple Events": Location to store output
   -password=false: Ask for AppleID password (requires CasperJS)
   -slides=true: Download slides/PDFs
   -team="": Apple Developer Team ID (requires CasperJS)

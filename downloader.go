@@ -17,6 +17,7 @@ import (
 var preferHd bool
 var dryRun bool
 var output string
+var separateFolders bool
 var client *http.Client
 
 func init() {
@@ -25,9 +26,9 @@ func init() {
 
 	if err == nil {
 		if runtime.GOOS == "darwin" {
-			defaultOutput = path.Join(user.HomeDir, "Documents", "WWDC")
+			defaultOutput = path.Join(user.HomeDir, "Documents", "Apple Events")
 		} else {
-			defaultOutput = path.Join(user.HomeDir, "WWDC")
+			defaultOutput = path.Join(user.HomeDir, "Apple Events")
 		}
 	} else if cwd, err := os.Getwd(); err == nil {
 		defaultOutput = cwd
@@ -36,6 +37,7 @@ func init() {
 	flag.StringVar(&output, "output", defaultOutput, "Location to store output")
 	flag.BoolVar(&preferHd, "hd", false, "Prefer videos in HD quality")
 	flag.BoolVar(&dryRun, "n", false, "Dry run (don't download anything)")
+	flag.BoolVar(&separateFolders, "folders", true, "Create a separate folder for each event")
 }
 
 func download(source string, destination string) (err error) {
@@ -120,10 +122,15 @@ func assertDirectory(path string) {
 	}
 }
 
-func DownloadFile(source string, fileName string) error {
+func DownloadFile(session *Session, source string, fileName string) error {
+	desinationDirectory := output
 
-	assertDirectory(output)
-	destination := path.Join(output, fileName)
+	if separateFolders {
+		desinationDirectory = path.Join(desinationDirectory, session.Event.Name)
+	}
+
+	assertDirectory(desinationDirectory)
+	destination := path.Join(desinationDirectory, fileName)
 	fmt.Printf("\n%s\n", destination)
 
 	if FileExists(destination) {
@@ -150,12 +157,12 @@ func DownloadFile(source string, fileName string) error {
 
 func DownloadVideo(session *Session) {
 	if url, fileName, ok := session.Video(preferHd); ok {
-		DownloadFile(url, fileName)
+		DownloadFile(session, url, fileName)
 	}
 }
 
 func DownloadSlides(session *Session) {
 	if url, fileName, ok := session.Slides(); ok {
-		DownloadFile(url, fileName)
+		DownloadFile(session, url, fileName)
 	}
 }

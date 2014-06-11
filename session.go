@@ -7,12 +7,14 @@ import (
 )
 
 type Session struct {
+	Event *Event
 	Number, Title string
 	downloads map[string]string
 }
 
-func NewSession(number string, title string) *Session {
+func NewSession(event *Event, number string, title string) *Session {
 	return &Session{
+		event,
 		number,
 		title,
 		make(map[string]string),

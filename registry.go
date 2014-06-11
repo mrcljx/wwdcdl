@@ -8,7 +8,7 @@ import (
 	"flag"
 )
 
-type SessionResolver func() []*Session
+type SessionResolver func(event *Event) []*Session
 
 type Event struct {
 	Id string
@@ -71,5 +71,5 @@ func FindSessions() []*Session {
 		os.Exit(1)
 	}
 
-	return event.Resolver()
+	return event.Resolver(event)
 }
