@@ -13,6 +13,7 @@ import (
 	"time"
 	"flag"
 	"github.com/howeyc/gopass"
+	"path"
 )
 
 var username, password, teamId string
@@ -63,37 +64,28 @@ func (a *Authenticator) loadCookiesViaCasper() (err error) {
 	if err != nil {
 		return
 	}
-	
-	file, err := ioutil.TempFile("", "wwdcdl")
-	
+
+	dir, err := ioutil.TempDir("", "wwdcdl")
+
 	if err != nil {
 		return
 	}
+
+	fileName := path.Join(dir, "cookies.json")
+
+	scriptFileName := path.Join(dir, "login.coffee")
+	asset, _ := Asset("data/login.coffee")
+	ioutil.WriteFile(scriptFileName, asset, 0600)
 	
-	cmd := exec.Command(casper, "login.coffee", file.Name(), username, password, teamId)
+	cmd := exec.Command(casper, scriptFileName, fileName, username, password, teamId)
 	
-	stdout, err := cmd.StdoutPipe()
-	
-	if err != nil {
-		return
-	}
-	
+	stdout, _ := cmd.StdoutPipe()
 	go io.Copy(os.Stdout, stdout)
-	
-	stderr, err := cmd.StderrPipe()
-	
-	if err != nil {
-		return
-	}
-	
+
+	stderr, _ := cmd.StderrPipe()
 	go io.Copy(os.Stderr, stderr)
 
 	stdin, err := cmd.StdinPipe()
-	
-	if err != nil {
-		return
-	}
-	
 	go io.Copy(stdin, os.Stdin)
 	
 	err = cmd.Run()
@@ -101,10 +93,8 @@ func (a *Authenticator) loadCookiesViaCasper() (err error) {
 	if err != nil {
 		return
 	}
-	
-	fmt.Printf(output)
-	
-	a.loadCookiesFromFile(file.Name())
+
+	a.loadCookiesFromFile(fileName)
 	
 	return
 }
@@ -135,6 +125,8 @@ func (a *Authenticator) loadCookies(data []byte) {
 		
 		a.cookies = append(a.cookies, cookie) 
 	}
+
+	fmt.Printf("Imported %d cookies.\n", len(a.cookies))
 	
 	cookieUrl, _ := url.Parse("https://apple.com")
 	http.DefaultClient.Jar, _ = cookiejar.New(nil)

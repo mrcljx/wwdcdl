@@ -1,7 +1,7 @@
 PRODUCT=wwdcdl
 RELEASES_FOLDER=bin
 
-all: ${RELEASES_FOLDER}/${PRODUCT}-linux.tar.gz ${RELEASES_FOLDER}/${PRODUCT}-darwin.tar.gz
+all: bindata.go ${RELEASES_FOLDER}/${PRODUCT}-linux.tar.gz ${RELEASES_FOLDER}/${PRODUCT}-darwin.tar.gz
 
 .PHONY: install
 	
@@ -16,3 +16,6 @@ ${RELEASES_FOLDER}/darwin/${PRODUCT}: *.go
 	
 ${RELEASES_FOLDER}/${PRODUCT}-darwin.tar.gz: ${RELEASES_FOLDER}/darwin/${PRODUCT}
 	tar czf $@ -C ${RELEASES_FOLDER}/darwin ${PRODUCT}
+
+bindata.go: data/*
+	go-bindata data
