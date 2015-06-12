@@ -9,8 +9,6 @@ import (
 )
 
 var (
-  noVideos = kingpin.Flag("no-videos", "Don't download videos").Bool()
-  noSlides = kingpin.Flag("no-slides", "Don't download slides/PDFs").Bool()
   list = kingpin.Flag("list", "Only show list of sessions").Short('l').Bool()
 )
 
@@ -45,18 +43,15 @@ func main() {
 
 	log.Printf("Found %d sessions.\n", len(sessions))
 
+	if *list {
+		listSessions(sessions)
+	} else {
+		DownloadSessions(sessions)
+	}
+}
+
+func listSessions(sessions []*Session) {
 	for _, session := range sessions {
-		if *list {
-			fmt.Println(session.String())
-			continue
-		}
-
-		if !*noVideos {
-			DownloadVideo(session)
-		}
-
-		if !*noSlides {
-			DownloadSlides(session)
-		}
+		fmt.Println(session.String())
 	}
 }

@@ -39,7 +39,9 @@ var (
 	output *string
 	preferHd = kingpin.Flag("hd", "Prefer videos in HD quality").Bool()
 	dryRun = kingpin.Flag("dry", "Dry run (don't download anything)").Short('n').Bool()
-	noFolders = kingpin.Flag("no-folders", "Don't create a separate folder for each event").Bool()
+	noFolders = kingpin.Flag("nofolders", "Don't create a separate folder for each event").Bool()
+	noVideos = kingpin.Flag("novideos", "Don't download videos").Bool()
+	noSlides = kingpin.Flag("noslides", "Don't download slides/PDFs").Bool()
 )
 
 func download(source string, destination string) (err error) {
@@ -101,8 +103,8 @@ func download(source string, destination string) (err error) {
 		Formatter: streamformatter.NewStreamFormatter(),
 		Size:      int(resp.ContentLength),
 		NewLines:  true,
-		ID:        "",
-		Action:    "Downloading",
+		ID:        destination,
+		Action:    path.Base(destination),
 	})
 
 	file, err := os.Create(destination)
@@ -140,17 +142,16 @@ func DownloadFile(session *Session, source string, fileName string) error {
 
 	assertDirectory(destinationDirectory)
 	destination := path.Join(destinationDirectory, SafeFileName(fileName))
-	log.Printf("\n%s\n", destination)
 
 	if FileExists(destination) {
-		log.Printf("Already downloaded. Skipping...\n")
+		log.Printf("%s already downloaded. Skipping...\n", destination)
 		return nil
 	}
 
 	temporary := destination + ".wddownload"
 
 	if err := download(source, temporary); err != nil {
-		log.Printf("Failed to download: %s\n", err)
+		log.Printf("%s failed to download: %s\n", destination, err)
 		os.Remove(temporary)
 		return err
 	}
@@ -164,13 +165,52 @@ func DownloadFile(session *Session, source string, fileName string) error {
 	return nil
 }
 
-func DownloadVideo(session *Session) {
+func DownloadSessions(sessions []*Session) {
+	if len(sessions) == 0 || (*noSlides && *noVideos) {
+		fmt.Println("Nothing to download.")
+		return
+	}
+
+	fmt.Printf("Will download ")
+
+	if !*noVideos {
+		format := "SD"
+
+		if (*preferHd) {
+			format = "HD"
+		}
+
+		fmt.Printf("Videos (%s)", format)
+	}
+
+	if !*noSlides {
+		if !*noVideos {
+			fmt.Printf(" and ")
+		}
+
+		fmt.Printf("PDF slides")
+	}
+
+	fmt.Printf(" to %s\n", *output)
+
+	for _, session := range sessions {
+		if !*noVideos {
+			downloadVideo(session)
+		}
+
+		if !*noSlides {
+			downloadSlides(session)
+		}
+	}
+}
+
+func downloadVideo(session *Session) {
 	if url, fileName, ok := session.Video(*preferHd); ok {
 		DownloadFile(session, url, fileName)
 	}
 }
 
-func DownloadSlides(session *Session) {
+func downloadSlides(session *Session) {
 	if url, fileName, ok := session.Slides(); ok {
 		DownloadFile(session, url, fileName)
 	}
