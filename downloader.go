@@ -132,14 +132,14 @@ func assertDirectory(path string) {
 }
 
 func DownloadFile(session *Session, source string, fileName string) error {
-	desinationDirectory := output
+	destinationDirectory := output
 
 	if separateFolders {
-		desinationDirectory = path.Join(desinationDirectory, session.Event.Name)
+		destinationDirectory = path.Join(destinationDirectory, session.Event.Name)
 	}
 
-	assertDirectory(desinationDirectory)
-	destination := path.Join(desinationDirectory, SafeFileName(fileName))
+	assertDirectory(destinationDirectory)
+	destination := path.Join(destinationDirectory, SafeFileName(fileName))
 	log.Printf("\n%s\n", destination)
 
 	if FileExists(destination) {
