@@ -3,37 +3,48 @@
 Small program to download WWDC videos and slides (written in Go)
 
 ```
-Usage:
+usage: wwdcdl [<flags>] <event>
 
-  ./wwdcdl [options] event
+Flags:
+  --help          Show help (also see --help-long and --help-man).
+  --email=sjobs@apple.com
+                  Your Apple ID (requires CasperJS)
+  --team=TEAM     Your Apple Developer Team ID (requires CasperJS)
+  -p, --password  Ask for AppleID password (requires CasperJS)
+  --hd            Prefer videos in HD quality
+  -n, --dry       Dry run (don't download anything)
+  --no-folders    Don't create a separate folder for each event
+  --no-videos     Don't download videos
+  --no-slides     Don't download slides/PDFs
+  -l, --list      Only show list of sessions
+  -o, --output="/Users/marcel/Documents/Apple Events"
+                  Location to store output
+  --version       Show application version.
+
+Args:
+  <event>  The event to download videos/slides from
 
 Events:
-
-  all
   tt2013 (Tech-Talks 2013)
   wwdc2012 (WWDC 2012)
   wwdc2013 (WWDC 2013)
   wwdc2014 (WWDC 2014)
-
-Options:
-
-  -folders=true: Create a separate folder for each event
-  -hd=false: Prefer videos in HD quality
-  -list=false: Only list sessions
-  -n=false: Dry run (don't download anything)
-  -output="/Users/marcel/Documents/Apple Events": Location to store output
-  -password=false: Ask for AppleID password (requires CasperJS)
-  -slides=true: Download slides/PDFs
-  -team="": Apple Developer Team ID (requires CasperJS)
-  -username="": AppleID username (requires CasperJS)
-  -videos=true: Download videos
+  wwdc2015 (WWDC 2015)
 
 Notes:
-
-CasperJS (http://casperjs.org/) is required for authentication.
+  CasperJS (http://casperjs.org/) is required for authentication.
 ```
 
 ## Installation
+
+### Recommended (OS X)
+
+```
+brew tap sirlantis/wwdcdl
+brew install wwdcdl
+```
+
+### Alternative Methods
 
 - Get it from the [Releases page](https://github.com/sirlantis/wwdcdl/releases) (OS X, Linux)
 - **or** run `go get github.com/sirlantis/wwdcdl` if you have `go` installed.
