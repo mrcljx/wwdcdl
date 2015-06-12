@@ -1,0 +1,26 @@
+{
+    "ImportPath": "github.com/sirlantis/wwdcdl",
+    "GoVersion": "go1.1.2",
+    "Deps": [
+        {
+            "ImportPath": "code.google.com/p/go-html-transform/css/selector",
+            "Rev": "744851c9d5796368f04a0c5c1751740d3bf72493"
+        },
+        {
+            "ImportPath": "code.google.com/p/go-html-transform/h5",
+            "Rev": "744851c9d5796368f04a0c5c1751740d3bf72493"
+        },
+        {
+            "ImportPath": "code.google.com/p/go.net/html",
+            "Rev": "9c0f9daaa74be0f25ccc12718bcb6b5d17802654"
+        },
+        {
+            "ImportPath": "github.com/docker/docker/pkg/progressreader",
+            "Rev": "00b8fec75f3a113c851013e0f0d559cc6d96b84d"
+        },
+        {
+            "ImportPath": "github.com/howeyc/gopass",
+            "Rev": "2c70fa70727c953c51695f800f25d6b44abb368e"
+        }
+    ]
+}

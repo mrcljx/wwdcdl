@@ -4,7 +4,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	docker "github.com/dotcloud/docker/utils"
+	"github.com/docker/docker/pkg/progressreader"
+	"github.com/docker/docker/pkg/streamformatter"
 	"io"
 	"log"
 	"net/http"
@@ -94,8 +95,15 @@ func download(source string, destination string) (err error) {
 		return errors.New(fmt.Sprintf("[DRY RUN]"))
 	}
 
-	formatter := docker.NewStreamFormatter(false)
-	reader := docker.ProgressReader(resp.Body, int(resp.ContentLength), os.Stdout, formatter, true, source, "Downloading")
+	reader := progressreader.New(progressreader.Config {
+		In:        resp.Body,
+		Out:       os.Stdout,
+		Formatter: streamformatter.NewStreamFormatter(),
+		Size:      int(resp.ContentLength),
+		NewLines:  true,
+		ID:        "",
+		Action:    "Downloading",
+	})
 
 	file, err := os.Create(destination)
 
