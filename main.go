@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"sort"
 )
@@ -31,7 +32,7 @@ func main() {
 
 	for _, session := range sessions {
 		if (list) {
-			log.Println(session.String())
+			fmt.Println(session.String())
 			continue
 		}
 
