@@ -30,7 +30,7 @@ func configure() {
 	fmt.Fprintln(buffer, "\nNotes:")
 	fmt.Fprintln(buffer, "  CasperJS (http://casperjs.org/) is required for authentication.")
 
-	kingpin.UsageTemplate(buffer.String()).Version("2.0").Author("Marcel Jackwerth")
+	kingpin.UsageTemplate(buffer.String()).Version("2.1").Author("Marcel Jackwerth")
 }
 
 func main() {
