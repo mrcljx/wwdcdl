@@ -31,6 +31,7 @@ func getSessionsFromUrl2015(event *Event, url string) []*Session {
 		href := GetAttrValue(titleNode, "href")
 		sessionNumber := strings.SplitN(href, "=", 2)[1]
 		session := NewSession(event, sessionNumber, title)
+		sessions = append(sessions, session)
 
 		waitGroup.Add(1)
 
@@ -45,8 +46,6 @@ func getSessionsFromUrl2015(event *Event, url string) []*Session {
 				downloadUrl := GetAttrValue(downloadNode, "href")
 				session.downloads[downloadType] = downloadUrl
 			}
-
-			sessions = append(sessions, session)
 		}()
 	}
 
