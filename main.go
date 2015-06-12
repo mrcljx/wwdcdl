@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"sort"
 )
 
 var videos bool
@@ -12,7 +13,7 @@ var authenticator *Authenticator
 
 func init() {
 	log.SetFlags(0)
-	
+
 	flag.BoolVar(&videos, "videos", true, "Download videos")
 	flag.BoolVar(&slides, "slides", true, "Download slides/PDFs")
 	flag.BoolVar(&list, "list", false, "Only list sessions")
@@ -23,7 +24,8 @@ func main() {
 	flag.Parse()
 
 	authenticator = NewAuthenticator()
-	sessions := FindSessions()
+	sessions := SessionList(FindSessions())
+	sort.Sort(sessions)
 
 	log.Printf("Found %d sessions.\n", len(sessions))
 
