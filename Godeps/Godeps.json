@@ -21,6 +21,9 @@
         {
             "ImportPath": "github.com/howeyc/gopass",
             "Rev": "2c70fa70727c953c51695f800f25d6b44abb368e"
+        },
+        {
+            "ImportPath": "gopkg.in/alecthomas/kingpin.v2"
         }
     ]
 }

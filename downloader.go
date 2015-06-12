@@ -2,11 +2,11 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"github.com/docker/docker/pkg/progressreader"
 	"github.com/docker/docker/pkg/streamformatter"
 	"io"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"log"
 	"net/http"
 	"os"
@@ -16,10 +16,6 @@ import (
 	"strings"
 )
 
-var preferHd bool
-var dryRun bool
-var output string
-var separateFolders bool
 var client *http.Client
 
 func init() {
@@ -36,11 +32,15 @@ func init() {
 		defaultOutput = cwd
 	}
 
-	flag.StringVar(&output, "output", defaultOutput, "Location to store output")
-	flag.BoolVar(&preferHd, "hd", false, "Prefer videos in HD quality")
-	flag.BoolVar(&dryRun, "n", false, "Dry run (don't download anything)")
-	flag.BoolVar(&separateFolders, "folders", true, "Create a separate folder for each event")
+	output = kingpin.Flag("output", "Location to store output").Short('o').Default(defaultOutput).String()
 }
+
+var (
+	output *string
+	preferHd = kingpin.Flag("hd", "Prefer videos in HD quality").Bool()
+	dryRun = kingpin.Flag("dry", "Dry run (don't download anything)").Short('n').Bool()
+	noFolders = kingpin.Flag("no-folders", "Don't create a separate folder for each event").Bool()
+)
 
 func download(source string, destination string) (err error) {
 	req, err := http.NewRequest("GET", source, nil)
@@ -91,7 +91,7 @@ func download(source string, destination string) (err error) {
 		return errors.New(fmt.Sprintf("Server responded with unexpected content-type '%s'", contentType))
 	}
 
-	if dryRun {
+	if *dryRun {
 		return errors.New(fmt.Sprintf("[DRY RUN]"))
 	}
 
@@ -123,7 +123,7 @@ func FileExists(path string) bool {
 }
 
 func assertDirectory(path string) {
-	if !dryRun && len(path) > 0 { // could be empty
+	if !*dryRun && len(path) > 0 { // could be empty
 		if err := os.MkdirAll(path, 0755); err != nil {
 			log.Printf("Failed to create output directory: %s\nReason: %s\n", path, err)
 			os.Exit(1) // no use to try other files
@@ -132,9 +132,9 @@ func assertDirectory(path string) {
 }
 
 func DownloadFile(session *Session, source string, fileName string) error {
-	destinationDirectory := output
+	destinationDirectory := *output
 
-	if separateFolders {
+	if !*noFolders {
 		destinationDirectory = path.Join(destinationDirectory, session.Event.Name)
 	}
 
@@ -165,7 +165,7 @@ func DownloadFile(session *Session, source string, fileName string) error {
 }
 
 func DownloadVideo(session *Session) {
-	if url, fileName, ok := session.Video(preferHd); ok {
+	if url, fileName, ok := session.Video(*preferHd); ok {
 		DownloadFile(session, url, fileName)
 	}
 }

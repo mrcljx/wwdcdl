@@ -2,10 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"github.com/howeyc/gopass"
 	"io"
 	"io/ioutil"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -17,14 +17,12 @@ import (
 	"time"
 )
 
-var username, password, teamId string
-var askPassword bool
-
-func init() {
-	flag.StringVar(&username, "username", "", "AppleID username (requires CasperJS)")
-	flag.StringVar(&teamId, "team", "", "Apple Developer Team ID (requires CasperJS)")
-	flag.BoolVar(&askPassword, "password", false, "Ask for AppleID password (requires CasperJS)")
-}
+var (
+  email = kingpin.Flag("email", "Your Apple ID (requires CasperJS)").PlaceHolder("sjobs@apple.com").String()
+  teamId = kingpin.Flag("team", "Your Apple Developer Team ID (requires CasperJS)").String()
+  askPassword = kingpin.Flag("password", "Ask for AppleID password (requires CasperJS)").Short('p').Bool()
+  password string
+)
 
 type Authenticator struct {
 	cookies       []*http.Cookie
@@ -32,10 +30,10 @@ type Authenticator struct {
 }
 
 func NewAuthenticator() *Authenticator {
-	if askPassword {
+	if *askPassword {
 		log.Print("Password: ")
 		password = string(gopass.GetPasswd())
-		askPassword = false
+		*askPassword = false
 	}
 
 	return &Authenticator{
@@ -84,7 +82,7 @@ func (a *Authenticator) loadCookiesViaCasper() (err error) {
 	asset, _ := Asset("data/login.coffee")
 	ioutil.WriteFile(scriptFileName, asset, 0600)
 
-	cmd := exec.Command(casper, scriptFileName, fileName, username, password, teamId)
+	cmd := exec.Command(casper, scriptFileName, fileName, *email, password, *teamId)
 
 	stdout, _ := cmd.StdoutPipe()
 	go io.Copy(os.Stdout, stdout)

@@ -2,7 +2,7 @@ package main
 
 import (
 	"errors"
-	"flag"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"log"
 	"os"
 	"sort"
@@ -16,7 +16,10 @@ type Event struct {
 	Resolver SessionResolver
 }
 
-var events map[string]*Event
+var (
+	eventId = kingpin.Arg("event", "The event to download videos/slides from").Required().String()
+	events map[string]*Event
+)
 
 func RegisterEvent(event *Event) (err error) {
 	if event.Resolver == nil {
@@ -30,19 +33,6 @@ func RegisterEvent(event *Event) (err error) {
 
 func init() {
 	events = make(map[string]*Event)
-
-	flag.Usage = func() {
-		log.Printf("Usage:\n\n  %s [options] event\n", os.Args[0])
-		log.Println("\nEvents:\n")
-		log.Println("  all")
-		for _, eventName := range EventNames() {
-			log.Printf("  %s (%s)\n", eventName, events[eventName].Name)
-		}
-		log.Println("\nOptions:\n")
-		flag.PrintDefaults()
-		log.Println("\nNotes:\n")
-		log.Println("CasperJS (http://casperjs.org/) is required for authentication.")
-	}
 }
 
 func EventNames() (names []string) {
@@ -57,22 +47,15 @@ func EventNames() (names []string) {
 }
 
 func FindSessions() []*Session {
-	eventId := flag.Arg(0)
-
-	if len(eventId) == 0 {
-		flag.Usage()
-		os.Exit(1)
-	}
-
-	if eventId == "all" {
+	if *eventId == "all" {
 		return AllSessions()
 	}
 
-	event, ok := events[eventId]
+	event, ok := events[*eventId]
 
 	if !ok {
-		log.Printf("Unknown event '%s'.\n\n", eventId)
-		flag.Usage()
+		log.Printf("Unknown event '%s'.\n\n", *eventId)
+		kingpin.Usage()
 		os.Exit(1)
 	}
 

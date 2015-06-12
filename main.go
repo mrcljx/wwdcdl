@@ -1,28 +1,43 @@
 package main
 
 import (
-	"flag"
+	"bytes"
 	"fmt"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"log"
 	"sort"
 )
 
-var videos bool
-var slides bool
-var list bool
+var (
+  noVideos = kingpin.Flag("no-videos", "Don't download videos").Bool()
+  noSlides = kingpin.Flag("no-slides", "Don't download slides/PDFs").Bool()
+  list = kingpin.Flag("list", "Only show list of sessions").Short('l').Bool()
+)
+
 var authenticator *Authenticator
 
 func init() {
 	log.SetFlags(0)
+}
 
-	flag.BoolVar(&videos, "videos", true, "Download videos")
-	flag.BoolVar(&slides, "slides", true, "Download slides/PDFs")
-	flag.BoolVar(&list, "list", false, "Only list sessions")
-	// TODO: flag for specific sessions
+func configure() {
+	buffer := bytes.NewBufferString(kingpin.DefaultUsageTemplate)
+
+	fmt.Fprintf(buffer, "\nEvents:\n")
+
+	for _, eventName := range EventNames() {
+		fmt.Fprintf(buffer, "  %s (%s)\n", eventName, events[eventName].Name)
+	}
+
+	fmt.Fprintln(buffer, "\nNotes:")
+	fmt.Fprintln(buffer, "  CasperJS (http://casperjs.org/) is required for authentication.")
+
+	kingpin.UsageTemplate(buffer.String()).Version("2.0").Author("Marcel Jackwerth")
 }
 
 func main() {
-	flag.Parse()
+	configure()
+	kingpin.Parse()
 
 	authenticator = NewAuthenticator()
 	sessions := SessionList(FindSessions())
@@ -31,16 +46,16 @@ func main() {
 	log.Printf("Found %d sessions.\n", len(sessions))
 
 	for _, session := range sessions {
-		if (list) {
+		if *list {
 			fmt.Println(session.String())
 			continue
 		}
 
-		if (videos) {
+		if !*noVideos {
 			DownloadVideo(session)
 		}
 
-		if (slides) {
+		if !*noSlides {
 			DownloadSlides(session)
 		}
 	}
