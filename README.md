@@ -13,9 +13,9 @@ Flags:
   -p, --password  Ask for AppleID password (requires CasperJS)
   --hd            Prefer videos in HD quality
   -n, --dry       Dry run (don't download anything)
-  --no-folders    Don't create a separate folder for each event
-  --no-videos     Don't download videos
-  --no-slides     Don't download slides/PDFs
+  --nofolders     Don't create a separate folder for each event
+  --novideos      Don't download videos
+  --noslides      Don't download slides/PDFs
   -l, --list      Only show list of sessions
   -o, --output="/Users/marcel/Documents/Apple Events"
                   Location to store output
