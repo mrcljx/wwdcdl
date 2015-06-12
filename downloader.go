@@ -139,7 +139,7 @@ func DownloadFile(session *Session, source string, fileName string) error {
 	}
 
 	assertDirectory(desinationDirectory)
-	destination := path.Join(desinationDirectory, fileName)
+	destination := path.Join(desinationDirectory, SafeFileName(fileName))
 	log.Printf("\n%s\n", destination)
 
 	if FileExists(destination) {
